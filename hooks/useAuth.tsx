@@ -81,9 +81,9 @@ function AuthProvider({ children }: IAuthProviderProps) {
             await AsyncStorage.setItem("@token", data.token);
             await getProfileInfo();
             router.push("/(authenticated)/Dashboard");
-        } catch (error) {
-            Alert.alert(error?.message);
-        }
+        } catch (error: any) {
+            console.log(error.message);
+          }
     }
 
     async function handleLogout() {

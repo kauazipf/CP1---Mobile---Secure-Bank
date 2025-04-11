@@ -93,7 +93,8 @@ export default function Register() {
     if (!response.ok) {
       const dataError = await response.json();
 
-      throw new Error(dataError?.message);
+      throw new Error(dataError?.message || 'Erro desconhecido na API');
+
     }
 
     Alert.alert(
@@ -193,16 +194,19 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f8f9fa',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   keyboardView: {
     flex: 1,
   },
   scrollView: {
     flexGrow: 1,
-    padding: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   header: {
-    marginTop: 20,
+    alignItems: 'center', // centraliza textos
     marginBottom: 30,
   },
   title: {
@@ -210,15 +214,18 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#6b256f',
     marginBottom: 10,
+    textAlign: 'center',
   },
   subtitle: {
     fontSize: 16,
     color: '#7b8bb2',
+    textAlign: 'center',
   },
   form: {
     backgroundColor: '#ffffff',
     borderRadius: 16,
     padding: 20,
+    width: 600, // menor largura para responsividade
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
@@ -246,8 +253,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingVertical: 14,
     alignItems: 'center',
-    width: 200,
-    marginLeft: 67,
+    width: '100%',
     marginTop: 10,
     marginBottom: 20,
     shadowColor: '#6b256f',
@@ -275,3 +281,4 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
+
