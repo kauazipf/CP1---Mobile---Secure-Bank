@@ -21,12 +21,24 @@ export default function LoginScreen() {
   const { handleLogin } = useAuth();
 
   async function submit() {
-  //  if(!isSaved) {
-    await AsyncStorage.setItem("@secure-bank-password", senha);
-    await AsyncStorage.setItem("@secure-bank-apelido", apelido);
-  //  }
-
-    handleLogin(apelido, senha);
+    try {
+      if (!apelido || !senha) {
+        Alert.alert("Erro", "Preencha todos os campos.");
+        return;
+      }
+  
+      if (senha.length < 6) {
+        Alert.alert("Erro", "A senha deve ter no mínimo 6 caracteres.");
+        return;
+      }
+  
+      await AsyncStorage.setItem("@secure-bank-apelido", apelido);
+      await AsyncStorage.setItem("@secure-bank-senha", senha);
+  
+      handleLogin(apelido, senha);
+    } catch (error: any) {
+      Alert.alert("Erro", error?.message || "Erro inesperado ao tentar logar.");
+    }
   }
 
   const router = useRouter();
@@ -34,44 +46,6 @@ export default function LoginScreen() {
   const navigateToSignUp = () => {
     router.push("/Register")
   };
-
-  async function handleBiometricAuth() {
-    try {
-      const isAvailable = await LocalAuthentication.hasHardwareAsync();
-
-      if (!isAvailable) {
-        return Alert.alert(
-          "Não suportado"
-        )
-      }
-
-      // Verificar se a biometria esta cadastrada
-      const isEnrolled = await LocalAuthentication.isEnrolledAsync();
-
-      if (!isEnrolled) {
-        return Alert.alert(
-          "Nenhuma biometria"
-        )
-      }
-
-      // Faz a autenticação
-      const result = await LocalAuthentication.authenticateAsync({
-        promptMessage: "Autentique-se para continuar",
-        fallbackLabel: "Usar senha",
-        disableDeviceFallback: false
-      });
-
-      if (result.success) {
-        // Função
-      } else {
-        // Falha
-      }
-
-
-    } catch (error) {
-      console.log(error);
-    }
-  }
 
   // Verificação se o dispositivo tem biometria
   useEffect(() => {
@@ -81,7 +55,7 @@ export default function LoginScreen() {
       setIsSaved(saved === "true");
 
       if(saved === "true") {
-        const senha =  await AsyncStorage.getItem("@secure-bank-password");
+        const senha =  await AsyncStorage.getItem("@secure-bank-senha");
         const apelido = await AsyncStorage.getItem("@secure-bank-apelido");
 
         if(senha === null || apelido === null) {
@@ -123,7 +97,7 @@ export default function LoginScreen() {
       </View>
 
       <View style={styles.formContainer}>
-        <Text style={styles.label}>Username</Text>
+        <Text style={styles.label}>Apelido</Text>
         <TextInput
           style={styles.input}
           placeholder="Digite seu usuario"
@@ -132,7 +106,7 @@ export default function LoginScreen() {
           autoCapitalize="none"
         />
 
-        <Text style={styles.label}>Password</Text>
+        <Text style={styles.label}>Senha</Text>
         <TextInput
           style={styles.input}
           placeholder="Digite sua senha"
@@ -141,8 +115,8 @@ export default function LoginScreen() {
           secureTextEntry
         />
 
-        <TouchableOpacity style={styles.forgotPassword}>
-          <Text style={styles.forgotPasswordText}>Esqueceu a senha?</Text>
+        <TouchableOpacity style={styles.forgotsenha}>
+          <Text style={styles.forgotsenhaText}>Esqueceu a senha?</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.loginButton} onPress={submit}>
@@ -206,11 +180,11 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     fontSize: 16,
   },
-  forgotPassword: {
+  forgotsenha: {
     alignSelf: 'flex-end',
     marginBottom: 20,
   },
-  forgotPasswordText: {
+  forgotsenhaText: {
     color: '#6b256f',
     fontSize: 14,
     fontWeight: '500',

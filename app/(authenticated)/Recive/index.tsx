@@ -1,4 +1,3 @@
-
 import { useRouter } from 'expo-router';
 import React, { useState, useEffect } from 'react';
 import {
@@ -18,255 +17,189 @@ export default function Recive() {
 
   const router = useRouter();
 
-  // Simulando o carregamento das informações do usuário
   useEffect(() => {
-    // Em um cenário real, você buscaria esses dados da API
     const carregarDadosUsuario = async () => {
       setCarregando(true);
-      try {
-        // Simulando um tempo de carregamento
-        setTimeout(() => {
-          setNomeUsuario('João Silva');
-          setApelido('joaozinho');
-          setCarregando(false);
-        }, 1000);
-      } catch (erro) {
-        console.error('Erro ao carregar dados do usuário:', erro);
-        Alert.alert('Erro', 'Não foi possível carregar seus dados');
+      setTimeout(() => {
+        setNomeUsuario('Kaua Zipf');
+        setApelido('kauazinho');
         setCarregando(false);
-      }
+      }, 1000);
     };
-
     carregarDadosUsuario();
   }, []);
 
-  // Função para compartilhar a chave Pix
-  const compartilharApelido = async () => {
-    try {
-    // TODO: Compartilhamento
-    } catch (erro) {
-      Alert.alert('Erro', 'Não foi possível compartilhar sua chave Pix');
-    }
+  const copiarApelido = () => {
+    Alert.alert('Copiado', 'Chave Pix copiada para a área de transferência');
   };
 
-  // Função para copiar a chave Pix (simulada)
-  const copiarApelido = () => {
-    // TODO: Copiar
-    Alert.alert('Copiado', 'Chave Pix copiada para a área de transferência');
+  const compartilharApelido = async () => {
+    Alert.alert('Compartilhar', 'Chave Pix compartilhada (simulado)');
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity 
-          style={styles.backButton}
-          onPress={() => router.back()}
-        >
-          <Text style={styles.backButtonText}>←</Text>
+        <TouchableOpacity onPress={() => router.back()}>
+          <Text style={styles.back}>◄</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Receber Dinheiro</Text>
-        <View style={styles.emptySpace} />
+        <Text style={styles.title}>Receber Pix</Text>
+        <View style={{ width: 30 }} />
       </View>
 
       {carregando ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#4a7df3" />
+        <View style={styles.loadingBox}>
+          <ActivityIndicator size="large" color="#6b256f" />
           <Text style={styles.loadingText}>Carregando suas informações...</Text>
         </View>
       ) : (
         <View style={styles.content}>
-          <View style={styles.nomeContainer}>
-            <Text style={styles.nomeLabel}>Receber como</Text>
-            <Text style={styles.nomeUsuario}>{nomeUsuario}</Text>
+          <View style={styles.profileBox}>
+            <Text style={styles.subtitle}>Você está recebendo como</Text>
+            <Text style={styles.profileName}>{nomeUsuario}</Text>
           </View>
 
-          <View style={styles.qrCodeContainer}>
-            <View style={styles.qrCode}>
-              {/* Aqui seria renderizado um QR Code real */}
-              <Text style={styles.qrCodePlaceholder}>QR Code</Text>
-              <Text style={styles.qrCodeInfo}>(Simulação)</Text>
-            </View>
-            <Text style={styles.qrCodeInstrucao}>
-              Peça para a pessoa escanear este QR Code
-            </Text>
+          <View style={styles.qrPlaceholder}>
+            <Text style={styles.qrLabel}>[ QR CODE ]</Text>
+            <Text style={styles.qrHint}>Simulação de código para recebimento</Text>
           </View>
 
-          <View style={styles.divider} />
-
-          <View style={styles.chaveApelidoContainer}>
-            <Text style={styles.chaveApelidoLabel}>Seu Apelido</Text>
-            <View style={styles.chaveApelidoValorContainer}>
-              <Text style={styles.chaveApelidoValor}>{apelido}</Text>
-              <TouchableOpacity 
-                style={styles.copyButton}
-                onPress={copiarApelido}
-              >
-                <Text style={styles.copyButtonText}>Copiar</Text>
+          <View style={styles.pixContainer}>
+            <Text style={styles.pixLabel}>Chave Pix</Text>
+            <View style={styles.pixRow}>
+              <Text style={styles.pixText}>{apelido}</Text>
+              <TouchableOpacity style={styles.copyButton} onPress={copiarApelido}>
+                <Text style={styles.copyText}>Copiar</Text>
               </TouchableOpacity>
             </View>
-            <Text style={styles.chaveApelidoInstrucao}>
-              Ou compartilhe seu apelido diretamente
-            </Text>
-            <TouchableOpacity 
-              style={styles.shareButton}
-              onPress={compartilharApelido}
-            >
-              <Text style={styles.shareButtonText}>Compartilhar Apelido</Text>
+
+            <TouchableOpacity style={styles.shareButton} onPress={compartilharApelido}>
+              <Text style={styles.shareText}>Compartilhar Apelido</Text>
             </TouchableOpacity>
           </View>
         </View>
       )}
     </SafeAreaView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#fdf4ff',
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingVertical: 15,
+    paddingVertical: 18,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#6b256f',
   },
-  backButton: {
-    padding: 5,
+  back: {
+    color: '#fff',
+    fontSize: 26,
   },
-  backButtonText: {
-    fontSize: 24,
-    color: '#4a7df3',
-  },
-  headerTitle: {
-    fontSize: 18,
+  title: {
+    fontSize: 20,
     fontWeight: 'bold',
-    color: '#2e3e5c',
+    color: '#fff',
   },
-  emptySpace: {
-    width: 20,
-  },
-  loadingContainer: {
+  loadingBox: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#fef6ff',
   },
   loadingText: {
-    marginTop: 10,
+    marginTop: 12,
     fontSize: 16,
-    color: '#7b8bb2',
+    color: '#6b21a8',
   },
   content: {
     flex: 1,
-    padding: 20,
+    padding: 24,
   },
-  nomeContainer: {
+  profileBox: {
     alignItems: 'center',
     marginBottom: 30,
   },
-  nomeLabel: {
-    fontSize: 16,
-    color: '#7b8bb2',
-    marginBottom: 8,
+  subtitle: {
+    fontSize: 14,
+    color: '#7e22ce',
+    marginBottom: 6,
   },
-  nomeUsuario: {
+  profileName: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#2e3e5c',
-    textAlign: 'center',
+    color: '#4c1d95',
   },
-  qrCodeContainer: {
+  qrPlaceholder: {
+    backgroundColor: '#f3e8ff',
+    borderRadius: 16,
+    paddingVertical: 60,
     alignItems: 'center',
-    marginBottom: 30,
+    marginBottom: 32,
+    borderWidth: 2,
+    borderColor: '#d8b4fe',
   },
-  qrCode: {
-    width: 200,
-    height: 200,
-    backgroundColor: '#ffffff',
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 16,
+  qrLabel: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#7e22ce',
+  },
+  qrHint: {
+    marginTop: 8,
+    fontSize: 13,
+    color: '#a855f7',
+  },
+  pixContainer: {
+    backgroundColor: '#fff',
+    padding: 16,
+    borderRadius: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
     elevation: 2,
   },
-  qrCodePlaceholder: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#4a7df3',
+  pixLabel: {
+    fontSize: 15,
+    color: '#6b21a8',
+    marginBottom: 10,
   },
-  qrCodeInfo: {
-    fontSize: 14,
-    color: '#7b8bb2',
-    marginTop: 5,
-  },
-  qrCodeInstrucao: {
-    fontSize: 14,
-    color: '#7b8bb2',
-    textAlign: 'center',
-  },
-  divider: {
-    height: 1,
-    backgroundColor: '#e0e0e0',
-    marginVertical: 20,
-  },
-  chaveApelidoContainer: {
-    marginBottom: 20,
-  },
-  chaveApelidoLabel: {
-    fontSize: 16,
-    color: '#7b8bb2',
-    marginBottom: 8,
-  },
-  chaveApelidoValorContainer: {
+  pixRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#ffffff',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    justifyContent: 'space-between',
+    backgroundColor: '#fdf2f8',
+    padding: 14,
+    borderRadius: 10,
     marginBottom: 16,
+    alignItems: 'center',
   },
-  chaveApelidoValor: {
-    flex: 1,
+  pixText: {
     fontSize: 16,
-    color: '#2e3e5c',
+    color: '#6b21a8',
   },
   copyButton: {
-    backgroundColor: '#f0f0f0',
-    paddingHorizontal: 12,
+    backgroundColor: '#f5d0fe',
+    paddingHorizontal: 10,
     paddingVertical: 6,
-    borderRadius: 4,
+    borderRadius: 6,
   },
-  copyButtonText: {
+  copyText: {
     fontSize: 14,
-    color: '#4a7df3',
-    fontWeight: '500',
-  },
-  chaveApelidoInstrucao: {
-    fontSize: 14,
-    color: '#7b8bb2',
-    marginBottom: 16,
+    fontWeight: 'bold',
+    color: '#7e22ce',
   },
   shareButton: {
-    backgroundColor: '#4a7df3',
-    borderRadius: 8,
+    backgroundColor: '#6b256f',
     paddingVertical: 14,
+    borderRadius: 12,
     alignItems: 'center',
-    shadowColor: '#4a7df3',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 4,
   },
-  shareButtonText: {
-    color: '#ffffff',
+  shareText: {
+    color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
   },

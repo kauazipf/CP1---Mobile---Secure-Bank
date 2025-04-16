@@ -58,7 +58,7 @@ function AuthProvider({ children }: IAuthProviderProps) {
             // Aqui você implementaria a lógica de autenticação
             const datToSend = {
                 apelido,
-                senha,
+                senha
             }
 
             const response = await

@@ -164,7 +164,7 @@ export default function Register() {
               secureTextEntry
             />
 
-            <Text style={styles.label}>Confirmar Senha</Text>
+            <Text style={styles.label}>Confirmar senha</Text>
             <TextInput
               style={styles.input}
               placeholder="Digite a senha novamente"
@@ -225,7 +225,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     borderRadius: 16,
     padding: 20,
-    width: 600, // menor largura para responsividade
+    width: 400, // menor largura para responsividade
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,

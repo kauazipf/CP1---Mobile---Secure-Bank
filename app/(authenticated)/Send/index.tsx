@@ -1,348 +1,257 @@
+// Versão redesenhada da tela Send, seguindo o estilo da página Recive
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-    StyleSheet,
-    Text,
-    View,
-    TextInput,
-    TouchableOpacity,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    Alert,
-    SafeAreaView,
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Alert,
+  SafeAreaView,
+  ActivityIndicator,
 } from 'react-native';
 
-
 export default function Send() {
-    const [contaDestino, setContaDestino] = useState('');
-    const [valor, setValor] = useState('');
-    const [descricao, setDescricao] = useState('');
-    const [categoria, setCategoria] = useState('');
-    const [token, setToken] = useState('');
-    const [carregando, setCarregando] = useState(false);
+  const [contaDestino, setContaDestino] = useState('');
+  const [valor, setValor] = useState('');
+  const [descricao, setDescricao] = useState('');
+  const [categoria, setCategoria] = useState('');
+  const [token, setToken] = useState('');
+  const [carregando, setCarregando] = useState(false);
 
-    const router = useRouter();
+  const router = useRouter();
 
-    // Lista de categorias disponíveis
-    const categorias = [
-        'Alimentação',
-        'Transporte',
-        'Lazer',
-        'Saúde',
-        'Educação',
-        'Moradia',
-        'Outros'
-    ];
+  const categorias = [
+    'Compras Online',
+    'Investimentos',
+    'Assinaturas',
+    'Viagens',
+    'Presentes',
+    'Serviços',
+    'Doações'
+  ];
 
-    // Formatar o valor como moeda enquanto digita
-    const formatarValor = (texto: string) => {
-        // Remove tudo que não for número
-        const apenasNumeros = texto.replace(/[^\d]/g, '');
+  const formatarValor = (texto: string) => {
+    const apenasNumeros = texto.replace(/[^\d]/g, '');
+    if (apenasNumeros) {
+      const valorNumerico = parseFloat(apenasNumeros) / 100;
+      setValor(valorNumerico.toFixed(2).replace('.', ','));
+    } else {
+      setValor('');
+    }
+  };
 
-        // Converte para centavos e depois para reais com vírgula
-        if (apenasNumeros) {
-            const valorNumerico = parseFloat(apenasNumeros) / 100;
-            setValor(valorNumerico.toFixed(2).replace('.', ','));
-        } else {
-            setValor('');
-        }
-    };
-
-    // Função para enviar o dinheiro
-    const enviarDinheiro = async () => {
-        // Validação dos campos
-        if (!contaDestino.trim()) {
-            Alert.alert('Erro', 'Informe a conta de destino');
-            return;
-        }
-
-        if (!valor) {
-            Alert.alert('Erro', 'Informe o valor da transferência');
-            return;
-        }
-
-        // Converte o valor para número
-        const valorNumerico = parseFloat(valor.replace(',', '.'));
-
-        if (isNaN(valorNumerico) || valorNumerico <= 0) {
-            Alert.alert('Erro', 'O valor deve ser maior que zero');
-            return;
-        }
-
-        if (!categoria) {
-            Alert.alert('Erro', 'Selecione uma categoria');
-            return;
-        }
-
-        // Prepara os dados para envio
-        const dadosTransferencia = {
-            contaDestino,
-            valor: valorNumerico,
-            descricao: descricao.trim() || 'Transferência',
-            categoria
-        };
-
-        setCarregando(true);
-
-        try {
-            const resposta = await fetch('https://mock-bank-mock-back.yexuz7.easypanel.host/transferencias', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(dadosTransferencia),
-            });
-
-            if (!resposta.ok) {
-                throw new Error('Falha ao realizar transferência');
-            }
-
-            const resultado = await resposta.json();
-            
-            Alert.alert(
-                'Transferência Realizada',
-                `Você enviou ${valor.replace(',', '.')} para ${contaDestino}`,
-                [
-                    {
-                        text: 'OK',
-                        onPress: () => router.push('/Dashboard')
-                    }
-                ]
-            );
-
-        } catch (erro) {
-            Alert.alert('Erro', 'Não foi possível realizar a transferência. Tente novamente.');
-        } finally {
-            setCarregando(false);
-        }
-    };
-
-    async function getToken() {
-        const token = await AsyncStorage.getItem("@token");
-
-        if (token === null || token === undefined) {
-            router.push("/Login");
-            return;
-        }
-
-        setToken(token);
+  const enviarDinheiro = async () => {
+    if (!contaDestino.trim() || !valor || !categoria) {
+      Alert.alert('Erro', 'Preencha todos os campos obrigatórios');
+      return;
     }
 
-    useEffect(() => {
-        getToken();
-    }, []);
+    const valorNumerico = parseFloat(valor.replace(',', '.'));
+    if (isNaN(valorNumerico) || valorNumerico <= 0) {
+      Alert.alert('Erro', 'O valor deve ser maior que zero');
+      return;
+    }
 
-    return (
-        <SafeAreaView style={styles.container}>
-            <KeyboardAvoidingView
-                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                style={styles.keyboardAvoid}
+    const dadosTransferencia = {
+      contaDestino,
+      valor: valorNumerico,
+      descricao: descricao.trim() || 'Transferência',
+      categoria
+    };
+
+    setCarregando(true);
+    try {
+      const resposta = await fetch('https://mock-bank-mock-back.yexuz7.easypanel.host/transferencias', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(dadosTransferencia),
+      });
+
+      if (!resposta.ok) throw new Error('Falha na transferência');
+
+      Alert.alert('Sucesso', `Você enviou R$ ${valor} para ${contaDestino}`, [
+        { text: 'OK', onPress: () => router.push('/Dashboard') },
+      ]);
+    } catch (erro) {
+      Alert.alert('Erro', 'Erro ao enviar dinheiro');
+    } finally {
+      setCarregando(false);
+    }
+  };
+
+  useEffect(() => {
+    (async () => {
+      const tokenSalvo = await AsyncStorage.getItem('@token');
+      if (!tokenSalvo) router.push('/Login');
+      else setToken(tokenSalvo);
+    })();
+  }, []);
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          <View style={styles.header}>
+            <TouchableOpacity onPress={() => router.back()}>
+              <Text style={styles.back}>◄</Text>
+            </TouchableOpacity>
+            <Text style={styles.title}>Enviar Dinheiro</Text>
+            <View style={{ width: 30 }} />
+          </View>
+
+          <View style={styles.card}>
+            <Text style={styles.label}>Apelido de destino</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Ex: kauazipf"
+              value={contaDestino}
+              onChangeText={setContaDestino}
+            />
+
+            <Text style={styles.label}>Valor</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="0,00"
+              keyboardType="numeric"
+              value={valor}
+              onChangeText={formatarValor}
+            />
+
+            <Text style={styles.label}>Descrição (opcional)</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Ex: Presente de aniversário"
+              value={descricao}
+              onChangeText={setDescricao}
+            />
+
+            <Text style={styles.label}>Categoria</Text>
+            <View style={styles.categoriasRow}>
+              {categorias.map((cat) => (
+                <TouchableOpacity
+                  key={cat}
+                  onPress={() => setCategoria(cat)}
+                  style={[styles.categoria, categoria === cat && styles.categoriaSelecionada]}
+                >
+                  <Text style={[styles.categoriaText, categoria === cat && styles.categoriaSelecionadaText]}>
+                    {cat}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <TouchableOpacity
+              style={[styles.botao, carregando && styles.botaoDesativado]}
+              onPress={enviarDinheiro}
+              disabled={carregando}
             >
-                <ScrollView contentContainerStyle={styles.scrollView}>
-                    <View style={styles.header}>
-                        <TouchableOpacity
-                            style={styles.backButton}
-                            onPress={() => router.back()}
-                        >
-                            <Text style={styles.backButtonText}>←</Text>
-                        </TouchableOpacity>
-                        <Text style={styles.headerTitle}>Enviar Dinheiro</Text>
-                        <View style={styles.emptySpace} />
-                    </View>
-
-                    <View style={styles.form}>
-                        <Text style={styles.label}>Para quem você deseja enviar?</Text>
-                        <TextInput
-                            style={styles.input}
-                            placeholder="Apelido ou nome de usuário"
-                            value={contaDestino}
-                            onChangeText={setContaDestino}
-                            autoCapitalize="none"
-                            autoCorrect={false}
-                        />
-
-                        <Text style={styles.label}>Quanto deseja enviar?</Text>
-                        <View style={styles.valorContainer}>
-                            <Text style={styles.moedaSymbol}>R$</Text>
-                            <TextInput
-                                style={styles.inputValor}
-                                placeholder="0,00"
-                                keyboardType="numeric"
-                                value={valor}
-                                onChangeText={formatarValor}
-                            />
-                        </View>
-
-                        <Text style={styles.label}>Descrição</Text>
-                        <TextInput
-                            style={styles.input}
-                            placeholder="Motivo da transferência"
-                            value={descricao}
-                            onChangeText={setDescricao}
-                            maxLength={100}
-                        />
-
-                        <Text style={styles.label}>Categoria</Text>
-                        <View style={styles.categoriasContainer}>
-                            {categorias.map((cat) => (
-                                <TouchableOpacity
-                                    key={cat}
-                                    style={[
-                                        styles.categoriaItem,
-                                        categoria === cat && styles.categoriaItemSelecionada
-                                    ]}
-                                    onPress={() => setCategoria(cat)}
-                                >
-                                    <Text
-                                        style={[
-                                            styles.categoriaTexto,
-                                            categoria === cat && styles.categoriaTextoSelecionado
-                                        ]}
-                                    >
-                                        {cat}
-                                    </Text>
-                                </TouchableOpacity>
-                            ))}
-                        </View>
-
-                        <TouchableOpacity
-                            style={[
-                                styles.botaoEnviar,
-                                carregando && styles.botaoDesabilitado
-                            ]}
-                            onPress={enviarDinheiro}
-                            disabled={carregando}
-                        >
-                            <Text style={styles.botaoEnviarTexto}>
-                                {carregando ? 'Enviando...' : 'Enviar Dinheiro'}
-                            </Text>
-                        </TouchableOpacity>
-                    </View>
-                </ScrollView>
-            </KeyboardAvoidingView>
-        </SafeAreaView>
-    );
-};
+              <Text style={styles.botaoTexto}>{carregando ? 'Enviando...' : 'Enviar'}</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
+  );
+}
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#f8f9fa',
-    },
-    keyboardAvoid: {
-        flex: 1,
-    },
-    scrollView: {
-        flexGrow: 1,
-        paddingBottom: 20,
-    },
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: 20,
-        paddingVertical: 15,
-    },
-    backButton: {
-        padding: 5,
-    },
-    backButtonText: {
-        fontSize: 24,
-        color: '#4a7df3',
-    },
-    headerTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#2e3e5c',
-    },
-    emptySpace: {
-        width: 20,
-    },
-    form: {
-        padding: 20,
-    },
-    label: {
-        fontSize: 16,
-        fontWeight: '500',
-        color: '#2e3e5c',
-        marginBottom: 8,
-        marginTop: 16,
-    },
-    input: {
-        backgroundColor: '#ffffff',
-        borderRadius: 8,
-        borderWidth: 1,
-        borderColor: '#e0e0e0',
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-        fontSize: 16,
-    },
-    valorContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#ffffff',
-        borderRadius: 8,
-        borderWidth: 1,
-        borderColor: '#e0e0e0',
-        paddingHorizontal: 16,
-    },
-    moedaSymbol: {
-        fontSize: 18,
-        color: '#2e3e5c',
-        marginRight: 8,
-    },
-    inputValor: {
-        flex: 1,
-        paddingVertical: 12,
-        fontSize: 18,
-        fontWeight: 'bold',
-    },
-    categoriasContainer: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        marginTop: 8,
-    },
-    categoriaItem: {
-        backgroundColor: '#f0f0f0',
-        borderRadius: 20,
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        margin: 4,
-    },
-    categoriaItemSelecionada: {
-        backgroundColor: '#4a7df3',
-    },
-    categoriaTexto: {
-        color: '#2e3e5c',
-        fontSize: 14,
-    },
-    categoriaTextoSelecionado: {
-        color: '#ffffff',
-        fontWeight: '500',
-    },
-    botaoEnviar: {
-        backgroundColor: '#4a7df3',
-        borderRadius: 8,
-        paddingVertical: 16,
-        alignItems: 'center',
-        marginTop: 30,
-        shadowColor: '#4a7df3',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.2,
-        shadowRadius: 8,
-        elevation: 4,
-    },
-    botaoDesabilitado: {
-        backgroundColor: '#a0a0a0',
-        shadowOpacity: 0,
-        elevation: 0,
-    },
-    botaoEnviarTexto: {
-        color: '#ffffff',
-        fontSize: 16,
-        fontWeight: 'bold',
-    }
+  container: {
+    flex: 1,
+    backgroundColor: '#fdf4ff',
+  },
+  scrollContent: {
+    padding: 20,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#6b256f',
+    paddingVertical: 18,
+    paddingHorizontal: 20,
+    marginBottom: 20,
+  },
+  back: {
+    color: '#fff',
+    fontSize: 24,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  card: {
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  label: {
+    fontSize: 14,
+    color: '#6b21a8',
+    marginTop: 12,
+    marginBottom: 4,
+  },
+  input: {
+    backgroundColor: '#f9f5ff',
+    borderWidth: 1,
+    borderColor: '#ddd6fe',
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    fontSize: 16,
+    marginBottom: 8,
+  },
+  categoriasRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginTop: 8,
+  },
+  categoria: {
+    backgroundColor: '#f3e8ff',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+    marginRight: 8,
+    marginBottom: 8,
+  },
+  categoriaSelecionada: {
+    backgroundColor: '#6b256f',
+  },
+  categoriaText: {
+    color: '#6b21a8',
+    fontSize: 13,
+  },
+  categoriaSelecionadaText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  botao: {
+    backgroundColor: '#6b256f',
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginTop: 24,
+  },
+  botaoDesativado: {
+    backgroundColor: '#c4b5fd',
+  },
+  botaoTexto: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
 });
